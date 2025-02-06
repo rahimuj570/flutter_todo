@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo/components/custom_dialog.dart';
 import 'package:todo/components/todo_tile.dart';
+import 'package:todo/hive_database/hive_db.dart';
 
 import '';
 
@@ -12,9 +13,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List todoList = [
-    ['ssss', false]
-  ];
+  @override
+  void initState() {
+    // await Hive.openBox("todos");
+    // TODO: implement initState
+    db.load();
+    super.initState();
+  }
+  final db = HiveDB();
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +28,23 @@ class _HomePageState extends State<HomePage> {
 
     void saveTask(String text) {
       setState(() {
-        todoList.add([text, false]);
-        print(todoList.length);
+        db.todoList.add([text, false]);
+        db.update(db.todoList);
       });
       txtController.clear();
       Navigator.pop(context);
     }
 
-    void onCheckChange(int index){
+    void onCheckChange(int index) {
       setState(() {
-        todoList[index][1]=!todoList[index][1];
+        db.todoList[index][1] = !db.todoList[index][1];
       });
     }
 
-    void delete(int index){
+    void delete(int index) {
       setState(() {
-        todoList.removeAt(index);
+        db.todoList.removeAt(index);
+        db.update(db.todoList);
       });
     }
 
@@ -61,11 +68,15 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 50.0,left: 20,right: 20),
+        padding: const EdgeInsets.only(top: 50.0, left: 20, right: 20),
         child: ListView.builder(
-          itemCount: todoList.length,
+          itemCount: db.todoList.length,
           itemBuilder: (context, index) {
-            return TodoTile(delete:(context)=>delete(index),checkChange: (b)=>onCheckChange(index),text: todoList[index][0], isDone: todoList[index][1]);
+            return TodoTile(
+                delete: (context) => delete(index),
+                checkChange: (b) => onCheckChange(index),
+                text: db.todoList[index][0],
+                isDone: db.todoList[index][1]);
           },
         ),
       ),

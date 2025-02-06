@@ -1,8 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:todo/screens/home_page.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async{
+  await Hive.initFlutter();
+  await Hive.openBox("todos");
+  runApp( const MyApp());
 }
 
 class MyApp extends StatelessWidget {
